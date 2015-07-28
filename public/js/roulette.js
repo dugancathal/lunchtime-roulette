@@ -8,119 +8,150 @@ var colors = ["#2a8251", "#dc0927", "#414243", "#dc0927", "#2E2C75",
   "#dc0927", "#414243", "#dc0927", "#2E2C75",
   "#dc0927", "#414243", "#dc0927", "#2E2C75"];
 var restaurants = [
-{"name": "The Corner Office Restaurant + Martini Bar"},
-{"name": "Coral Room"},
-{"name": "Three Dogs Tavern"},
-{"name": "Jonesy's EatBar"}
+  {"name": "The Corner Office Restaurant + Martini Bar"},
+  {"name": "Coral Room"},
+  {"name": "Three Dogs Tavern"},
+  {"name": "Jonesy's EatBar"}
 ];
 
-function RouletteWheel(restaurants) {
-  return {
-    restaurants: restaurants,
-    spinTimeout: null,
-    spinArcStart: 10,
-    spinTime: 0,
-    spinTimeTotal: 0,
-    startAngle: 0,
-    arc: function() {
-      return (2*Math.PI) / this.restaurants.length;
-    }
-  };
+function RouletteWheelCanvas(canvas, restaurants) {
+  this.restaurants = restaurants;
+  this.canvas = canvas;
+
+  this.spinTimeout = null;
+  this.spinArcStart = 10;
+  this.spinTime = 0;
+  this.spinTimeTotal = 0;
+  this.startAngle = 0;
+
+  this.canvasSideLength = this.canvas.width;
+  this.canvas.height = this.canvas.width;
+  this.centerX = this.canvasSideLength / 2;
+  this.centerY = this.canvasSideLength / 2;
+  this.outsideRadius = 0.4 * this.canvasSideLength;
+  this.textAlignmentRadiusInsideWedge = (this.canvasSideLength - 200) / 2;
+  this.insideRadius = (this.canvasSideLength - 250) / 2;
 }
 
-var ctx;
-var wheel = new RouletteWheel(restaurants);
-function drawRouletteWheel() {
-  var canvas = document.getElementById("wheelcanvas");
-  wheel.restaurants = restaurants;
+RouletteWheelCanvas.prototype.arc = function arc() {
+  return (2 * Math.PI) / this.restaurants.length;
+};
 
-  if (canvas.getContext) {
-    var outsideRadius = 200;
-    var textRadius = 160;
-    var insideRadius = 125;
+RouletteWheelCanvas.prototype.drawRouletteWedge = function drawRouletteWedge(index) {
+  var angle = this.startAngle + index * this.arc();
+  var text = index + 1;
+  this.ctx.fillStyle = colors[index];
 
-    ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, 500, 500);
+  this.ctx.beginPath();
+  this.ctx.arc(this.centerX, this.centerY, this.outsideRadius, angle, angle + this.arc(), false);
+  this.ctx.arc(this.centerX, this.centerY, this.insideRadius, angle + this.arc(), angle, true);
+  this.ctx.stroke();
+  this.ctx.fill();
 
+  this.ctx.save();
+  this.ctx.shadowOffsetX = -1;
+  this.ctx.shadowOffsetY = -1;
+  this.ctx.shadowBlur = 0;
+  this.ctx.shadowColor = "rgb(220,220,220)";
+  this.ctx.fillStyle = "black";
+  this.ctx.translate(this.centerX + Math.cos(angle + this.arc() / 2) * this.textAlignmentRadiusInsideWedge, this.centerY + Math.sin(angle + this.arc() / 2) * this.textAlignmentRadiusInsideWedge);
+  this.ctx.rotate(angle + this.arc() / 2 + Math.PI / 2);
+  this.ctx.fillStyle = 'white';
+  this.ctx.fillText(text, -this.ctx.measureText(text).width / 2, 0);
+  this.ctx.restore();
+};
 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
+RouletteWheelCanvas.prototype.initContext = function initCanvas() {
+  var ctx = this.canvas.getContext("2d");
+  ctx.clearRect(0, 0, this.canvasSideLength, this.canvasSideLength);
 
-    ctx.font = 'bold 12px sans-serif';
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.font = 'bold 12px sans-serif';
+  this.ctx = ctx;
+};
 
-    for (var i = 0; i < wheel.restaurants.length; i++) {
-      var angle = wheel.startAngle + i * wheel.arc();
-      ctx.fillStyle = colors[i];
-
-      ctx.beginPath();
-      ctx.arc(250, 250, outsideRadius, angle, angle + wheel.arc(), false);
-      ctx.arc(250, 250, insideRadius, angle + wheel.arc(), angle, true);
-      ctx.stroke();
-      ctx.fill();
-
-      ctx.save();
-      ctx.shadowOffsetX = -1;
-      ctx.shadowOffsetY = -1;
-      ctx.shadowBlur = 0;
-      ctx.shadowColor = "rgb(220,220,220)";
-      ctx.fillStyle = "black";
-      ctx.translate(250 + Math.cos(angle + wheel.arc() / 2) * textRadius, 250 + Math.sin(angle + wheel.arc() / 2) * textRadius);
-      ctx.rotate(angle + wheel.arc() / 2 + Math.PI / 2);
-      ctx.fillStyle = 'white';
-      var text = i + 1;
-      ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
-      ctx.restore();
-    }
-
-    //Arrow
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.moveTo(250 - 4, 250 - (outsideRadius + 5));
-    ctx.lineTo(250 + 4, 250 - (outsideRadius + 5));
-    ctx.lineTo(250 + 4, 250 - (outsideRadius - 5));
-    ctx.lineTo(250 + 9, 250 - (outsideRadius - 5));
-    ctx.lineTo(250 + 0, 250 - (outsideRadius - 13));
-    ctx.lineTo(250 - 9, 250 - (outsideRadius - 5));
-    ctx.lineTo(250 - 4, 250 - (outsideRadius - 5));
-    ctx.lineTo(250 - 4, 250 - (outsideRadius + 5));
-    ctx.fill();
+RouletteWheelCanvas.prototype.draw = function draw() {
+  this.initContext();
+  for (var i = 0; i < this.restaurants.length; i++) {
+    this.drawRouletteWedge(i);
   }
-}
 
-function spin(wheel) {
-  wheel.spinAngleStart = Math.random() * 10 + 10;
-  wheel.spinTime = 0;
-  wheel.spinTimeTotal = Math.random() * 3 + 4 * 1000;
-  rotateWheel(wheel);
-}
+  this.drawArrow();
+};
 
-function rotateWheel(wheel) {
-  wheel.spinTime += 30;
-  if (wheel.spinTime >= wheel.spinTimeTotal) {
-    stopRotateWheel(wheel);
+RouletteWheelCanvas.prototype.drawArrow = function drawArrow() {
+  this.ctx.fillStyle = "black";
+  this.ctx.beginPath();
+  this.ctx.moveTo(this.centerX - 4, this.centerY - (this.outsideRadius + 5));
+  this.ctx.lineTo(this.centerX + 4, this.centerY - (this.outsideRadius + 5));
+  this.ctx.lineTo(this.centerX + 4, this.centerY - (this.outsideRadius - 5));
+  this.ctx.lineTo(this.centerX + 9, this.centerY - (this.outsideRadius - 5));
+  this.ctx.lineTo(this.centerX + 0, this.centerY - (this.outsideRadius - 13));
+  this.ctx.lineTo(this.centerX - 9, this.centerY - (this.outsideRadius - 5));
+  this.ctx.lineTo(this.centerX - 4, this.centerY - (this.outsideRadius - 5));
+  this.ctx.lineTo(this.centerX - 4, this.centerY - (this.outsideRadius + 5));
+  this.ctx.fill();
+};
+
+RouletteWheelCanvas.prototype.getWinnerByIndex = function getWinnerByIndex(index) {
+  return this.restaurants[index].name;
+};
+
+RouletteWheelCanvas.prototype.pickWinner = function pickWinner(onWinnerSelected) {
+  this.spinAngleStart = Math.random() * 10 + 10;
+  this.spinTime = 0;
+  this.spinTimeTotal = Math.random() * 3 + 4 * 1000;
+  this.countdownAndThen(function () {
+    this._rotate(onWinnerSelected);
+  }.bind(this));
+};
+
+RouletteWheelCanvas.prototype.countdownAndThen = function countdownAndThen(andThen) {
+  var _this = this;
+  _this.setCenterText(3);
+  setTimeout(function () {
+    _this.setCenterText(2);
+    setTimeout(function () {
+      _this.setCenterText(1);
+      setTimeout(function () {
+        andThen();
+      }, 1000)
+    }, 1000)
+  }, 1000)
+};
+
+RouletteWheelCanvas.prototype.setCenterText = function setCenterText(text) {
+  this.draw();
+  this.ctx.save();
+  this.ctx.font = 'bold 30px sans-serif';
+  var topLeftOfTextX = this.centerX - this.ctx.measureText(text).width / 2;
+  var topLeftOfTextY = this.centerY + 10;
+  this.ctx.fillText(text, topLeftOfTextX, topLeftOfTextY);
+  this.ctx.restore();
+};
+
+RouletteWheelCanvas.prototype._rotate = function _rotate(onFinishedRotating) {
+  this.spinTime += 30;
+  if (this.spinTime >= this.spinTimeTotal) {
+    this._finishRotation(onFinishedRotating);
     return;
   }
-  var spinAngle = wheel.spinAngleStart - easeOut(wheel.spinTime, 0, wheel.spinAngleStart, wheel.spinTimeTotal);
-  wheel.startAngle += (spinAngle * Math.PI / 180);
-  drawRouletteWheel();
-  wheel.spinTimeout = setTimeout(function() { rotateWheel(wheel) }, 30);
-}
+  var spinAngle = this.spinAngleStart - easeOut(this.spinTime, 0, this.spinAngleStart, this.spinTimeTotal);
+  this.startAngle += (spinAngle * Math.PI / 180);
+  this.draw();
+  this.spinTimeout = setTimeout(function () {
+    this._rotate(onFinishedRotating);
+  }.bind(this), 30);
+};
 
-function stopRotateWheel(wheel) {
-  clearTimeout(wheel.spinTimeout);
-  var degrees = wheel.startAngle * 180 / Math.PI + 90;
-  var arcd = wheel.arc() * 180 / Math.PI;
+RouletteWheelCanvas.prototype._finishRotation = function _finishRotation(finishedCallback) {
+  clearTimeout(this.spinTimeout);
+  var degrees = this.startAngle * 180 / Math.PI + 90;
+  var arcd = this.arc() * 180 / Math.PI;
   var index = Math.floor((360 - degrees % 360) / arcd);
-  ctx.save();
-  ctx.font = 'bold 30px sans-serif';
-  var text = wheel.restaurants[index].name;
-  var topLeftOfTextX = 250 - ctx.measureText(text).width / 2;
-  var topLeftOfTextY = 250 + 10;
-  ctx.fillText(text, topLeftOfTextX, topLeftOfTextY);
-  ctx.restore();
-  ctx.rect(topLeftOfTextX, topLeftOfTextY, topLeftOfTextX + ctx.measureText(text).width, 250-10);
-
-}
+  return finishedCallback(this.getWinnerByIndex(index));
+};
 
 function easeOut(t, b, c, d) {
   var ts = (t /= d) * t;

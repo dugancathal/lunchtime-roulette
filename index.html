@@ -4,39 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lunch Roulette</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/public/css/app.css">
 </head>
 <body>
   <div class="container-fluid">
-    <div class="page-header">
-      <h1>Lunch Roulette!</h1>
-    </div>
-    <div id="roulette">
-      <div class="row">
-        <div class="col-md-6">
-          <canvas id="wheelcanvas" width="500" height="500"></canvas>
-        </div>
-        <div class="col-md-6">
-          <form>
-            <div class="col-md-9">
-              <input type="text" name="q" placeholder="Whatcha thinkin'?" class="form-control"/>
-            </div>
-            <button type="button" class="btn btn-primary" onClick="onNewQuery()">Spin!</button>
-          </form>
-          <ol id="placelist"></ol>
-        </div>
-      </div>
-    </div>
+    <div id="roulette-app"></div>
     <div id="map"></div>
-
-    <img src="public/img/powered-by-google.png" alt="Powered By Google"/>
   </div>
 
-
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places"></script>
-  <script type="text/javascript" src="public/js/roulette.js"></script>
-  <script type="text/javascript" src="public/js/app.js"></script>
+  <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?libraries=geometry,places"></script>
+  <script type="text/javascript" src="/public/js/react.js"></script>
+  <script type="text/javascript" src="/public/js/roulette.js"></script>
+  <script type="text/javascript" src="/public/js/app.js"></script>
 </body>
 </html>
