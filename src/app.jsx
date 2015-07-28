@@ -90,7 +90,7 @@ var Searcher = React.createClass({
     return (
       <form onSubmit={this.query} className="row">
         <div className="col-xs-9">
-          <input type="text" name="q" placeholder={placeholder} className="form-control" ref="query"/>
+          <input type="text" name="q" placeholder={placeholder} className="form-control" ref="query" tabindex="1" autoFocus/>
         </div>
         <div className="col-xs-3">
           <button type="submit" disabled={!this.state.location} className="btn btn-primary">Spin!</button>

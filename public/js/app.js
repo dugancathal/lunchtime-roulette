@@ -90,7 +90,7 @@ var Searcher = React.createClass({displayName: "Searcher",
     return (
       React.createElement("form", {onSubmit: this.query, className: "row"}, 
         React.createElement("div", {className: "col-xs-9"}, 
-          React.createElement("input", {type: "text", name: "q", placeholder: placeholder, className: "form-control", ref: "query"})
+          React.createElement("input", {type: "text", name: "q", placeholder: placeholder, className: "form-control", ref: "query", tabindex: "1", autoFocus: true})
         ), 
         React.createElement("div", {className: "col-xs-3"}, 
           React.createElement("button", {type: "submit", disabled: !this.state.location, className: "btn btn-primary"}, "Spin!")
